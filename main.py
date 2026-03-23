@@ -3,7 +3,6 @@ import hashlib
 import os
 import time
 import requests
-import urllib.parse
 from time import gmtime, strftime
 
 ACCESS_KEY = os.environ.get('COUPANG_ACCESS')
@@ -22,20 +21,20 @@ def generateHmac(method, url, secretKey, accessKey):
 domain = "https://api-gateway.coupang.com"
 method = "GET"
 
-# 할인율(원가) 데이터를 주는 검색 API용 키워드
-search_keywords = {
-    "여성패션": "여성옷", "남성패션": "남성옷", "뷰티": "화장품",
-    "출산/유아동": "육아용품", "식품": "간편식품", "생활용품": "생활용품",
-    "가전디지털": "가전제품", "스포츠/레저": "스포츠용품", "반려동물": "강아지용품",
-    "완구/취미": "장난감", "주방용품": "주방용품", "홈인테리어": "인테리어"
+# 💡 차단 절대 안 당하는 '베스트 API' 전용 카테고리 ID
+category_mapping = {
+    "여성패션": "1001", "남성패션": "1002", "뷰티": "1010",
+    "출산/유아동": "1011", "식품": "1013", "생활용품": "1015",
+    "가전디지털": "1018", "스포츠/레저": "1019", "반려동물": "1024",
+    "완구/취미": "1012", "주방용품": "1014", "홈인테리어": "1016"
 }
 
-category_bins = {cat: [] for cat in search_keywords.keys()}
+category_bins = {cat: [] for cat in category_mapping.keys()}
+all_products = []
 
-for cat_name, keyword in search_keywords.items():
-    encoded_kw = urllib.parse.quote(keyword)
-    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/search?keyword={encoded_kw}&limit=20"
-    
+for cat_name, cat_id in category_mapping.items():
+    # limit 조건 빼고 기본값으로 가장 안전하게 요청
+    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/bestcategories/{cat_id}"
     authorization = generateHmac(method, url, SECRET_KEY, ACCESS_KEY)
     headers = { "Authorization": authorization, "Content-Type": "application/json" }
     
@@ -43,19 +42,17 @@ for cat_name, keyword in search_keywords.items():
     
     if response.status_code == 200:
         data = response.json()
-        items = data.get('data', {}).get('productData', [])[:20] 
+        items = data.get('data', [])[:20] 
         for item in items:
             item['my_category'] = cat_name 
             category_bins[cat_name].append(item)
             
-    # 🚨 가장 중요한 방어 코드: 쿠팡이 절대 눈치채지 못하게 2.5초씩 푹 쉬어줌
-    time.sleep(2.5) 
+    time.sleep(1.5) # 안전빵 휴식
 
-# 전체 랭킹 섞기
-all_products = []
+# 💡 랭킹 섞기 로직 (인기순 정렬의 핵심)
 rank_counter = 1
 for i in range(20):
-    for cat_name in search_keywords.keys():
+    for cat_name in category_mapping.keys():
         if i < len(category_bins[cat_name]):
             item = category_bins[cat_name][i]
             item['global_rank'] = rank_counter
@@ -83,23 +80,24 @@ html_content = """
         .filter-container { display: flex; justify-content: flex-end; padding: 10px 16px 0; }
         .sort-select { padding: 6px 12px; border-radius: 8px; border: 1px solid #d1d6db; background: white; font-size: 13px; color: #4e5968; font-weight: 600; outline: none; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; min-height: 50vh;}
         .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-decoration: none; color: inherit; }
         
-        .img-container { position: relative; width: 100%; aspect-ratio: 1; }
+        .img-container { position: relative; width: 100%; aspect-ratio: 1; background-color: #f8f9fa;}
         .item-img { width: 100%; height: 100%; object-fit: cover; }
         .rank-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 14px; font-weight: 900; padding: 4px 8px; border-radius: 6px; z-index: 10; font-style: italic;}
         
         .item-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
         .item-title { font-size: 13px; color: #333; line-height: 1.4; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         
-        /* 💡 부활한 할인율 디자인 */
         .price-wrap { display: flex; flex-direction: column; margin-top: auto; }
         .original-price { font-size: 11px; color: #8b95a1; text-decoration: line-through; margin-bottom: 2px; }
         .price-container { display: flex; align-items: baseline; gap: 4px; }
         .discount-rate { font-size: 16px; font-weight: 800; color: #e52528; }
         .item-price { font-size: 16px; font-weight: 800; color: #1a1b1c; }
         .time-ago { font-size: 11px; color: #8b95a1; margin-top: 6px; }
+        
+        .empty-msg { grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #8b95a1; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -117,11 +115,12 @@ html_content = """
         <div class="sub-tab" onclick="filterItems(this, '식품')">식품</div>
         <div class="sub-tab" onclick="filterItems(this, '가전디지털')">가전/디지털</div>
         <div class="sub-tab" onclick="filterItems(this, '반려동물')">반려동물</div>
+        <div class="sub-tab" onclick="filterItems(this, '생활용품')">생활용품</div>
     </div>
 
     <div class="filter-container">
         <select class="sort-select" id="sortFilter" onchange="sortItems()">
-            <option value="rank">🔥 인기순 (검색랭킹)</option>
+            <option value="rank">🔥 인기순 (판매랭킹)</option>
             <option value="lowPrice">💸 낮은 가격순</option>
             <option value="highPrice">💎 높은 가격순</option>
         </select>
@@ -130,53 +129,55 @@ html_content = """
     <div class="grid-container" id="itemGrid">
 """
 
-for item in all_products:
-    title = item.get('productName', '상품명 없음')
-    current_price = int(item.get('productPrice', 0))
-    # 💡 검색 API라 basePrice(원가) 추출 가능!
-    original_price = int(item.get('basePrice', item.get('originalPrice', 0)))
-    
-    link = item.get('productUrl', '#')
-    image_url = item.get('productImage', '')
-    category_tag = item.get('my_category', '기타')
-    rank_number = item.get('global_rank', 999)
-    
-    price_html = ""
-    # 💡 할인율 자동 계산 로직 부활
-    if original_price > current_price:
-        discount_rate = int(((original_price - current_price) / original_price) * 100)
-        price_html = f"""
-            <div class="price-wrap">
-                <div class="original-price"><del>{original_price:,}원</del></div>
-                <div class="price-container">
-                    <span class="discount-rate">{discount_rate}%</span>
-                    <span class="item-price">{current_price:,}원</span>
+# 🚨 만약 쿠팡 API가 또 먹통일 때 하얀 화면 대신 안내 멘트 띄우기
+if not all_products:
+    html_content += "<div class='empty-msg'>😭 쿠팡 서버 점검 중입니다. 잠시 후 새로고침 해주세요!</div>"
+else:
+    for item in all_products:
+        title = item.get('productName', '상품명 없음')
+        current_price = int(item.get('productPrice', 0))
+        # 베스트 API에서 운 좋게 원가를 주면 가져오고, 없으면 0 처리
+        original_price = int(item.get('basePrice', item.get('originalPrice', 0)))
+        
+        link = item.get('productUrl', '#')
+        image_url = item.get('productImage', '')
+        category_tag = item.get('my_category', '기타')
+        rank_number = item.get('global_rank', 999)
+        
+        price_html = ""
+        if original_price > current_price:
+            discount_rate = int(((original_price - current_price) / original_price) * 100)
+            price_html = f"""
+                <div class="price-wrap">
+                    <div class="original-price"><del>{original_price:,}원</del></div>
+                    <div class="price-container">
+                        <span class="discount-rate">{discount_rate}%</span>
+                        <span class="item-price">{current_price:,}원</span>
+                    </div>
                 </div>
-            </div>
-        """
-    else:
-        # 할인이 없는 상품은 현재가만 깔끔하게 표시
-        price_html = f"""
-            <div class="price-wrap">
-                <div class="price-container">
-                    <span class="item-price">{current_price:,}원</span>
+            """
+        else:
+            price_html = f"""
+                <div class="price-wrap">
+                    <div class="price-container">
+                        <span class="item-price">{current_price:,}원</span>
+                    </div>
                 </div>
-            </div>
+            """
+        
+        html_content += f"""
+            <a href="{link}" class="item-card" target="_blank" data-category="{category_tag}" data-price="{current_price}" data-rank="{rank_number}">
+                <div class="img-container">
+                    <div class="rank-badge">{rank_number}</div>
+                    <img src="{image_url}" class="item-img" alt="상품 이미지" loading="lazy">
+                </div>
+                <div class="item-info">
+                    <div class="item-title">{title}</div>
+                    {price_html}
+                    <div class="time-ago">쿠팡 베스트</div>
+                </div>
+            </a>
         """
-    
-    html_content += f"""
-        <a href="{link}" class="item-card" target="_blank" data-category="{category_tag}" data-price="{current_price}" data-rank="{rank_number}">
-            <div class="img-container">
-                <div class="rank-badge">{rank_number}</div>
-                <img src="{image_url}" class="item-img" alt="상품 이미지" loading="lazy">
-            </div>
-            <div class="item-info">
-                <div class="item-title">{title}</div>
-                {price_html}
-                <div class="time-ago">실시간 특가</div>
-            </div>
-        </a>
-    """
     
 html_content += """
     </div>
@@ -195,7 +196,7 @@ html_content += """
                     item.style.display = 'none';
                 }
             });
-            sortItems();
+            sortItems(); // 탭 바꿀 때마다 정렬 다시 맞춤
         }
 
         function sortItems() {
