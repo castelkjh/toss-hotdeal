@@ -3,6 +3,7 @@ import hashlib
 import os
 import time
 import requests
+import urllib.parse
 from time import gmtime, strftime
 
 ACCESS_KEY = os.environ.get('COUPANG_ACCESS')
@@ -21,27 +22,29 @@ def generateHmac(method, url, secretKey, accessKey):
 domain = "https://api-gateway.coupang.com"
 method = "GET"
 
-category_mapping = {
-    "여성패션": "1001",
-    "남성패션": "1002",
-    "뷰티": "1010",
-    "출산/유아동": "1011",
-    "완구/취미": "1012",
-    "식품": "1013",
-    "주방용품": "1014",
-    "생활용품": "1015",
-    "홈인테리어": "1016",
-    "가전디지털": "1018",
-    "스포츠/레저": "1019",
-    "자동차용품": "1020",
-    "반려동물": "1024"
+search_keywords = {
+    "여성패션": "여성옷",
+    "남성패션": "남성옷",
+    "뷰티": "화장품",
+    "출산/유아동": "육아용품",
+    "식품": "간편식품",
+    "생활용품": "생활용품",
+    "가전디지털": "가전제품",
+    "스포츠/레저": "스포츠용품",
+    "반려동물": "강아지용품",
+    "완구/취미": "장난감",
+    "주방용품": "주방용품",
+    "홈인테리어": "인테리어",
+    "자동차용품": "차량용품"
 }
 
-all_products = []
+# 💡 랭킹 섞기를 위해 각 카테고리별 방을 따로 만듦
+category_bins = {cat: [] for cat in search_keywords.keys()}
 
-for cat_name, cat_id in category_mapping.items():
-    # 💡 해결책 1: ?limit=20 조건을 빼고 기본값으로 안전하게 요청
-    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/bestcategories/{cat_id}"
+for cat_name, keyword in search_keywords.items():
+    encoded_kw = urllib.parse.quote(keyword)
+    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/search?keyword={encoded_kw}&limit=20"
+    
     authorization = generateHmac(method, url, SECRET_KEY, ACCESS_KEY)
     headers = {
         "Authorization": authorization,
@@ -52,16 +55,24 @@ for cat_name, cat_id in category_mapping.items():
     
     if response.status_code == 200:
         data = response.json()
-        # 💡 해결책 2: 쿠팡이 준 데이터 중 파이썬이 알아서 앞에서 20개만 컷!
-        items = data.get('data', [])[:20] 
+        items = data.get('data', {}).get('productData', [])[:20] 
         for item in items:
             item['my_category'] = cat_name 
-            all_products.append(item)
-    else:
-        print(f"❌ {cat_name} 카테고리 에러:", response.status_code)
+            category_bins[cat_name].append(item)
             
-    # 💡 해결책 3: 쿠팡 서버 차단 안 당하게 1초씩 넉넉하게 쉬어주기
     time.sleep(1) 
+
+# 💡 핵심 랭킹 엔진: 각 카테고리에서 1등씩 먼저 뽑고, 그다음 2등씩 뽑아서 골고루 섞어줌
+all_products = []
+rank_counter = 1
+
+for i in range(20):
+    for cat_name in search_keywords.keys():
+        if i < len(category_bins[cat_name]):
+            item = category_bins[cat_name][i]
+            item['global_rank'] = rank_counter # 고유 랭킹 딱지 붙이기!
+            all_products.append(item)
+            rank_counter += 1
 
 html_content = """
 <!DOCTYPE html>
@@ -73,7 +84,6 @@ html_content = """
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 0; }
         .main-tabs { display: flex; justify-content: space-around; background: white; padding: 10px 0; border-bottom: 2px solid #f2f4f6; position: sticky; top: 0; z-index: 100;}
-        /* 💡 글자 깨짐 방지: white-space: nowrap 추가 */
         .main-tab { white-space: nowrap; font-size: 15px; font-weight: 700; color: #8b95a1; padding: 10px 15px; cursor: pointer; transition: 0.2s;}
         .main-tab.active { color: #1a1b1c; border-bottom: 3px solid #1a1b1c; }
         
@@ -84,10 +94,14 @@ html_content = """
         
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
         .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-decoration: none; color: inherit; }
-        .item-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        
+        /* 💡 랭킹 뱃지용 CSS 추가 */
+        .img-container { position: relative; width: 100%; aspect-ratio: 1; }
+        .item-img { width: 100%; height: 100%; object-fit: cover; }
+        .rank-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 14px; font-weight: 900; padding: 4px 8px; border-radius: 6px; z-index: 10; font-style: italic; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        
         .item-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
         .item-title { font-size: 13px; color: #333; line-height: 1.4; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .badge { display: inline-block; background: #ffe5e5; color: #e52528; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-bottom: 6px; width: fit-content; }
         
         .price-wrap { display: flex; flex-direction: column; margin-top: auto; }
         .original-price { font-size: 11px; color: #8b95a1; text-decoration: line-through; margin-bottom: 2px; }
@@ -99,9 +113,9 @@ html_content = """
 </head>
 <body>
     <div class="main-tabs">
-        <div class="main-tab active">🔥 실시간 베스트</div>
-        <div class="main-tab">🏆 투데이 특가</div>
-        <div class="main-tab">🎯 맞춤 추천</div>
+        <div class="main-tab active" onclick="clickMainTab(this)">🔥 실시간 베스트</div>
+        <div class="main-tab" onclick="clickMainTab(this)">🏆 투데이 특가</div>
+        <div class="main-tab" onclick="clickMainTab(this)">🎯 맞춤 추천</div>
     </div>
     
     <div class="category-tabs">
@@ -128,10 +142,10 @@ for item in all_products:
     title = item.get('productName', '상품명 없음')
     current_price = int(item.get('productPrice', 0))
     original_price = int(item.get('basePrice', item.get('originalPrice', 0)))
-    
     link = item.get('productUrl', '#')
     image_url = item.get('productImage', '')
     category_tag = item.get('my_category', '기타')
+    rank_number = item.get('global_rank', '') # 파이썬이 부여한 랭킹 번호 가져오기
     
     price_html = ""
     if original_price > current_price:
@@ -154,14 +168,17 @@ for item in all_products:
             </div>
         """
     
+    # 💡 이미지 컨테이너 안에 랭킹 뱃지 추가!
     html_content += f"""
         <a href="{link}" class="item-card" target="_blank" data-category="{category_tag}">
-            <img src="{image_url}" class="item-img" alt="상품 이미지" loading="lazy">
+            <div class="img-container">
+                <div class="rank-badge">{rank_number}</div>
+                <img src="{image_url}" class="item-img" alt="상품 이미지" loading="lazy">
+            </div>
             <div class="item-info">
-                <div class="badge">실시간 순위권</div>
                 <div class="item-title">{title}</div>
                 {price_html}
-                <div class="time-ago">쿠팡 베스트 상품</div>
+                <div class="time-ago">실시간 특가</div>
             </div>
         </a>
     """
@@ -170,6 +187,15 @@ html_content += """
     </div>
     
     <script>
+        function clickMainTab(element) {
+            document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            
+            if(element.innerText.includes('투데이') || element.innerText.includes('추천')) {
+                alert('현재 AI가 상품을 수집 중입니다. 내일 오픈됩니다!');
+            }
+        }
+
         function filterItems(element, category) {
             document.querySelectorAll('.sub-tab').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
