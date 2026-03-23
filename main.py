@@ -40,7 +40,8 @@ category_mapping = {
 all_products = []
 
 for cat_name, cat_id in category_mapping.items():
-    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/bestcategories/{cat_id}?limit=20"
+    # 💡 해결책 1: ?limit=20 조건을 빼고 기본값으로 안전하게 요청
+    url = f"/v2/providers/affiliate_open_api/apis/openapi/products/bestcategories/{cat_id}"
     authorization = generateHmac(method, url, SECRET_KEY, ACCESS_KEY)
     headers = {
         "Authorization": authorization,
@@ -48,14 +49,19 @@ for cat_name, cat_id in category_mapping.items():
     }
     
     response = requests.request(method=method, url=domain + url, headers=headers)
+    
     if response.status_code == 200:
         data = response.json()
-        items = data.get('data', [])
+        # 💡 해결책 2: 쿠팡이 준 데이터 중 파이썬이 알아서 앞에서 20개만 컷!
+        items = data.get('data', [])[:20] 
         for item in items:
             item['my_category'] = cat_name 
             all_products.append(item)
+    else:
+        print(f"❌ {cat_name} 카테고리 에러:", response.status_code)
             
-    time.sleep(0.2) 
+    # 💡 해결책 3: 쿠팡 서버 차단 안 당하게 1초씩 넉넉하게 쉬어주기
+    time.sleep(1) 
 
 html_content = """
 <!DOCTYPE html>
@@ -67,12 +73,13 @@ html_content = """
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 0; }
         .main-tabs { display: flex; justify-content: space-around; background: white; padding: 10px 0; border-bottom: 2px solid #f2f4f6; position: sticky; top: 0; z-index: 100;}
-        .main-tab { font-size: 15px; font-weight: 700; color: #8b95a1; padding: 10px 20px; cursor: pointer; transition: 0.2s;}
+        /* 💡 글자 깨짐 방지: white-space: nowrap 추가 */
+        .main-tab { white-space: nowrap; font-size: 15px; font-weight: 700; color: #8b95a1; padding: 10px 15px; cursor: pointer; transition: 0.2s;}
         .main-tab.active { color: #1a1b1c; border-bottom: 3px solid #1a1b1c; }
         
         .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; background: #fff; white-space: nowrap; border-bottom: 1px solid #e5e8eb;}
         .category-tabs::-webkit-scrollbar { display: none; }
-        .sub-tab { padding: 8px 16px; background: #f2f4f6; border-radius: 20px; font-size: 13px; font-weight: 600; color: #4e5968; border: none; cursor: pointer; flex-shrink: 0;}
+        .sub-tab { white-space: nowrap; padding: 8px 16px; background: #f2f4f6; border-radius: 20px; font-size: 13px; font-weight: 600; color: #4e5968; border: none; cursor: pointer; flex-shrink: 0;}
         .sub-tab.active { background: #3182f6; color: #fff; }
         
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
@@ -82,7 +89,6 @@ html_content = """
         .item-title { font-size: 13px; color: #333; line-height: 1.4; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .badge { display: inline-block; background: #ffe5e5; color: #e52528; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-bottom: 6px; width: fit-content; }
         
-        /* 💡 추가된 가격 디자인 CSS */
         .price-wrap { display: flex; flex-direction: column; margin-top: auto; }
         .original-price { font-size: 11px; color: #8b95a1; text-decoration: line-through; margin-bottom: 2px; }
         .price-container { display: flex; align-items: baseline; gap: 4px; }
@@ -119,16 +125,14 @@ html_content = """
 """
 
 for item in all_products:
-    title = item['productName']
-    current_price = int(item['productPrice'])
-    # 쿠팡 API에서 'basePrice'나 'originalPrice'를 찾아오고, 없으면 0으로 처리
+    title = item.get('productName', '상품명 없음')
+    current_price = int(item.get('productPrice', 0))
     original_price = int(item.get('basePrice', item.get('originalPrice', 0)))
     
-    link = item['productUrl']
-    image_url = item['productImage']
-    category_tag = item['my_category'] 
+    link = item.get('productUrl', '#')
+    image_url = item.get('productImage', '')
+    category_tag = item.get('my_category', '기타')
     
-    # 💡 파이썬 자동 수학 계산기: 할인율(%) 구하기
     price_html = ""
     if original_price > current_price:
         discount_rate = int(((original_price - current_price) / original_price) * 100)
@@ -142,7 +146,6 @@ for item in all_products:
             </div>
         """
     else:
-        # 할인이 안 들어간 상품은 그냥 현재 가격만 깔끔하게 보여줌
         price_html = f"""
             <div class="price-wrap">
                 <div class="price-container">
