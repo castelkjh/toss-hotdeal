@@ -5,7 +5,6 @@ import time
 import requests
 from time import gmtime, strftime
 
-# 💡 깃허브 비밀금고에서 내 키를 안전하게 불러오는 마법의 코드!
 ACCESS_KEY = os.environ.get('COUPANG_ACCESS')
 SECRET_KEY = os.environ.get('COUPANG_SECRET')
 
@@ -35,51 +34,69 @@ if response.status_code == 200:
     data = response.json()
     items = data.get('data', [])
     
+    # 상단 탭 및 2열 그리드 UI가 적용된 세련된 HTML 뼈대
     html_content = """
     <!DOCTYPE html>
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>초특가 핫딜 큐레이션</title>
+        <title>초특가 핫딜</title>
         <style>
-            body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 16px; }
-            .header { text-align: center; font-size: 20px; font-weight: bold; color: #333; margin-bottom: 20px; }
-            .item-card { background: white; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; }
-            .item-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px 12px 0 0; }
-            .item-content { padding: 16px; }
-            .item-title { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 8px; line-height: 1.4; }
-            .item-price { font-size: 18px; color: #e52528; font-weight: bold; margin-bottom: 12px; }
-            .buy-btn { display: block; text-align: center; background-color: #3182f6; color: white; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 16px 16px 16px;}
+            body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 0; }
+            .header-banner { background: white; padding: 15px; text-align: center; font-size: 18px; font-weight: 800; color: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            /* 상단 카테고리 탭 디자인 */
+            .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; background: #fff; white-space: nowrap; border-bottom: 1px solid #e5e8eb;}
+            .category-tabs::-webkit-scrollbar { display: none; }
+            .tab { padding: 8px 16px; background: #f2f4f6; border-radius: 20px; font-size: 14px; font-weight: 600; color: #4e5968; text-decoration: none; border: none; cursor: pointer;}
+            .tab.active { background: #1a1b1c; color: #fff; }
+            /* 2열 그리드(바둑판) 디자인 */
+            .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+            .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-decoration: none; color: inherit;}
+            .item-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+            .item-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+            .item-title { font-size: 13px; color: #333; line-height: 1.4; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+            .badge { display: inline-block; background: #ffe5e5; color: #e52528; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-bottom: 6px; width: fit-content; }
+            .item-price { font-size: 16px; font-weight: 800; color: #1a1b1c; margin-top: auto; }
         </style>
     </head>
     <body>
-        <div class="header">🔥 오늘의 초특가 핫딜</div>
+        <div class="header-banner">🔥 실시간 초특가 랭킹</div>
+        
+        <div class="category-tabs">
+            <div class="tab active">전체</div>
+            <div class="tab">디지털/가전</div>
+            <div class="tab">식품/생활</div>
+            <div class="tab">패션/뷰티</div>
+        </div>
+
+        <div class="grid-container">
     """
     
-    for item in items[:10]: 
+    # 상품을 2열 바둑판 형태로 뿌려주기
+    for item in items[:16]: # 짝수(16개)로 맞춰서 배열이 예쁘게 떨어지도록 수정
         title = item['productName']
         price = f"{item['productPrice']:,}"
         link = item['productUrl']
         image_url = item['productImage']
         
         html_content += f"""
-        <div class="item-card">
-            <img src="{image_url}" class="item-img" alt="{title}">
-            <div class="item-content">
-                <div class="item-title">{title}</div>
-                <div class="item-price">{price}원</div>
-            </div>
-            <a href="{link}" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="{link}" class="item-card" target="_blank">
+                <img src="{image_url}" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">{title}</div>
+                    <div class="item-price">{price}원</div>
+                </div>
+            </a>
         """
         
     html_content += """
+        </div>
     </body>
     </html>
     """
     
-    # 💡 네틀리파이용 파일 이름인 'index.html'로 저장되도록 수정했어!
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
 
