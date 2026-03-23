@@ -4,111 +4,182 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>초특가 핫딜 큐레이션</title>
+        <title>초특가 핫딜</title>
         <style>
-            body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 16px; }
-            .header { text-align: center; font-size: 20px; font-weight: bold; color: #333; margin-bottom: 20px; }
-            .item-card { background: white; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; }
-            .item-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px 12px 0 0; }
-            .item-content { padding: 16px; }
-            .item-title { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 8px; line-height: 1.4; }
-            .item-price { font-size: 18px; color: #e52528; font-weight: bold; margin-bottom: 12px; }
-            .buy-btn { display: block; text-align: center; background-color: #3182f6; color: white; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 16px 16px 16px;}
+            body { font-family: 'Malgun Gothic', sans-serif; background-color: #f2f4f6; margin: 0; padding: 0; }
+            .header-banner { background: white; padding: 15px; text-align: center; font-size: 18px; font-weight: 800; color: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            /* 상단 카테고리 탭 디자인 */
+            .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; background: #fff; white-space: nowrap; border-bottom: 1px solid #e5e8eb;}
+            .category-tabs::-webkit-scrollbar { display: none; }
+            .tab { padding: 8px 16px; background: #f2f4f6; border-radius: 20px; font-size: 14px; font-weight: 600; color: #4e5968; text-decoration: none; border: none; cursor: pointer;}
+            .tab.active { background: #1a1b1c; color: #fff; }
+            /* 2열 그리드(바둑판) 디자인 */
+            .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+            .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-decoration: none; color: inherit;}
+            .item-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+            .item-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+            .item-title { font-size: 13px; color: #333; line-height: 1.4; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+            .badge { display: inline-block; background: #ffe5e5; color: #e52528; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-bottom: 6px; width: fit-content; }
+            .item-price { font-size: 16px; font-weight: 800; color: #1a1b1c; margin-top: auto; }
         </style>
     </head>
     <body>
-        <div class="header">🔥 오늘의 초특가 핫딜</div>
+        <div class="header-banner">🔥 실시간 초특가 랭킹</div>
+        
+        <div class="category-tabs">
+            <div class="tab active">전체</div>
+            <div class="tab">디지털/가전</div>
+            <div class="tab">식품/생활</div>
+            <div class="tab">패션/뷰티</div>
+        </div>
+
+        <div class="grid-container">
     
-        <div class="item-card">
-            <img src="https://image4.coupangcdn.com/image/retail/images/97157453364183-8be52b06-cebe-44b1-88b7-8fad5587234c.jpg" class="item-img" alt="코카콜라 오리지널">
-            <div class="item-content">
-                <div class="item-title">코카콜라 오리지널</div>
-                <div class="item-price">22,170.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=9371774&itemId=13530883960&vendorItemId=88377301407&traceid=V0-143-90293e766f4ba76f" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=261192458&itemId=7633145557&vendorItemId=74924265429&traceid=V0-143-5875e3f7a89a609b" class="item-card" target="_blank">
+                <img src="https://image11.coupangcdn.com/image/retail/images/16425520630042-9dcd32f1-a915-4924-935f-91debbc9dc6d.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">코멧 순백 3겹 라벤더 바닐라 롤화장지</div>
+                    <div class="item-price">21,990.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://image5.coupangcdn.com/image/retail/images/80134522417823-7fac3412-c79f-42dc-af70-d28c83ebe312.jpg" class="item-img" alt="탐사 도톰한 천연펄프 4겹 화장지">
-            <div class="item-content">
-                <div class="item-title">탐사 도톰한 천연펄프 4겹 화장지</div>
-                <div class="item-price">13,790.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8675053697&itemId=25183611019&vendorItemId=92180462716&traceid=V0-143-805edde164b3cf4b" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=130164876&itemId=21326386046&vendorItemId=4949572331&traceid=V0-143-f0e7e0b4d5b695e9" class="item-card" target="_blank">
+                <img src="https://image12.coupangcdn.com/image/retail/images/943896774536058-084f28ad-2c21-4ee4-bcc0-e6912a06198e.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">듀라셀 알카라인 AA 건전지</div>
+                    <div class="item-price">13,900.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://static.coupangcdn.com/image/vendor_inventory/d3df/9b800e4185b1b11d30ddb5c872a5cbb030a405525e5c7a81be78ecfbe964.jpg" class="item-img" alt="가비진 여성용 스판 좋은 핀턱 밴딩 일자 와이드 팬츠 키작녀 바지 빅사이즈까지">
-            <div class="item-content">
-                <div class="item-title">가비진 여성용 스판 좋은 핀턱 밴딩 일자 와이드 팬츠 키작녀 바지 빅사이즈까지</div>
-                <div class="item-price">15,350.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=7872502734&itemId=25142587518&vendorItemId=92141513290&traceid=V0-143-63b689d2976bc94c" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=7749071357&itemId=20867946919&vendorItemId=75943171647&traceid=V0-143-9d49685a4d2b4543" class="item-card" target="_blank">
+                <img src="https://img3c.coupangcdn.com/image/retail/images/18173613690250-8e416156-0a55-413b-9873-1784de864fab.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">매일두유 고단백 플레인 두유</div>
+                    <div class="item-price">18,090.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://image13.coupangcdn.com/image/retail/images/466632652279176-039fe578-5fdc-48c6-b155-9e6f3c554359.jpg" class="item-img" alt="팜에이트 리코타치즈 샐러드">
-            <div class="item-content">
-                <div class="item-title">팜에이트 리코타치즈 샐러드</div>
-                <div class="item-price">8,990.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=194587046&itemId=558289134&vendorItemId=4466446357&traceid=V0-143-26a29d7b74d56a0a" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=4369073195&itemId=5147478784&vendorItemId=72419087721&traceid=V0-143-86a6ed5ec5028f2f" class="item-card" target="_blank">
+                <img src="https://image15.coupangcdn.com/image/retail/images/1601489755260576-28663579-b360-4502-b85d-4f7519574328.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">마인드브릿지 남녀공용 통기성 고밀도 20수 순면 기본 반팔티 티셔츠 3팩 MATS0101</div>
+                    <div class="item-price">19,900.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://img3a.coupangcdn.com/image/retail/images/72187695788658-c5ea3793-f790-4708-ba46-c43d287b338d.png" class="item-img" alt="동원샘물 무라벨">
-            <div class="item-content">
-                <div class="item-title">동원샘물 무라벨</div>
-                <div class="item-price">13,560.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=7869554357&itemId=21539285552&vendorItemId=86493937091&traceid=V0-143-17c2a755e3c9640f" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8812509839&itemId=27033826335&vendorItemId=94002339233&traceid=V0-143-f098ddbe98e3901b" class="item-card" target="_blank">
+                <img src="https://static.coupangcdn.com/image/rs_quotation_api/6rtc8xmg/71c95b75d498426baeeb329b66dd9d36.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">라이프란스 3중쿠션 면 층간소음 무소음 거실화</div>
+                    <div class="item-price">13,900.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://image15.coupangcdn.com/image/vendor_inventory/e8c8/9e34d722fec93732cf31b1faab1986d6c5e32fdbcd0d27d3ad4a91931c86.jpg" class="item-img" alt="리벤스 퓨어워터 아기물티슈 엠보싱 캡형">
-            <div class="item-content">
-                <div class="item-title">리벤스 퓨어워터 아기물티슈 엠보싱 캡형</div>
-                <div class="item-price">9,390.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8466035425&itemId=24495587313&vendorItemId=91508759661&traceid=V0-143-a609ecee5f48273c" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8441525461&itemId=24645100598&vendorItemId=81446396357&traceid=V0-143-07ec11003ae87305" class="item-card" target="_blank">
+                <img src="https://image10.coupangcdn.com/image/retail/images/1658646197622113-ff4f8cdc-d2eb-4250-a16d-a5aa2f8b28ca.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">스카치브라이트 프리미엄 고무장갑 5개입</div>
+                    <div class="item-price">15,200.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://img4a.coupangcdn.com/image/vendor_inventory/image_audit/stage/manual/5815dfa6346690084f6e95cc8d651b07a8e732dc1ebec34f9f8c1d519c9f_1761209751473.jpg" class="item-img" alt="맘스럽 클린톡스 10배고농축 국내산기술력 특대용량 캡슐세제 프로방스 실내건조형 프리미엄 프랑스고급향수 타입">
-            <div class="item-content">
-                <div class="item-title">맘스럽 클린톡스 10배고농축 국내산기술력 특대용량 캡슐세제 프로방스 실내건조형 프리미엄 프랑스고급향수 타입</div>
-                <div class="item-price">10,450.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8738191050&itemId=25396721445&vendorItemId=92367878293&traceid=V0-143-0c55eb82aff26aaa" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8285889030&itemId=26375360250&vendorItemId=93351971214&traceid=V0-143-e622e837e26165b9" class="item-card" target="_blank">
+                <img src="https://image3.coupangcdn.com/image/retail/images/2025/08/19/17/7/56dc37f4-94a2-4d4d-bcb1-caa03e750a5a.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">파르페by알레르망 오프닝 알러지케어 차렵이불 베개커버세트</div>
+                    <div class="item-price">63,400.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://image5.coupangcdn.com/image/retail/images/2178718743617-3ca672df-e939-4846-8316-08f847f7819a.jpg" class="item-img" alt="브라이튼 브이 여행용 확장형 캐리어 20인치, 24인치, 28인치">
-            <div class="item-content">
-                <div class="item-title">브라이튼 브이 여행용 확장형 캐리어 20인치, 24인치, 28인치</div>
-                <div class="item-price">69,900.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=208056828&itemId=25752603429&vendorItemId=4618070237&traceid=V0-143-a8741c2605a02cb8" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8337525715&itemId=24075681874&vendorItemId=91095344047&traceid=V0-143-b334d01b2e5c3a61" class="item-card" target="_blank">
+                <img src="https://image6.coupangcdn.com/image/retail/images/1845538849805050-1e42c4cf-9d17-401a-a892-6d4d376ecfa3.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">신일 스테인레스 제빙기</div>
+                    <div class="item-price">93,840.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://img1c.coupangcdn.com/image/retail/images/1830711277454936-ca50216a-9598-498a-8c44-03b2dd69006d.jpg" class="item-img" alt="아리얼 스트레스 릴리빙 립앤아이 리무버 패드 30p">
-            <div class="item-content">
-                <div class="item-title">아리얼 스트레스 릴리빙 립앤아이 리무버 패드 30p</div>
-                <div class="item-price">6,950.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=2197659275&itemId=19170748959&vendorItemId=71724365721&traceid=V0-143-c40571e51c2b9740" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8472248294&itemId=24513753592&vendorItemId=91526632118&traceid=V0-143-1caaf37ea38356c5" class="item-card" target="_blank">
+                <img src="https://img5a.coupangcdn.com/image/rs_quotation_api/5hwb6cz9/fb77411b40104056ba68e9e2489795fe.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">[로켓프레시] 충남오감 타이벡딸기</div>
+                    <div class="item-price">7,290.0원</div>
+                </div>
+            </a>
         
-        <div class="item-card">
-            <img src="https://image6.coupangcdn.com/image/rs_quotation_api/pwkia7ma/7254aff828e847c68562582009d53d90.jpg" class="item-img" alt="[로켓프레시] New 버팔로윙 (냉동)">
-            <div class="item-content">
-                <div class="item-title">[로켓프레시] New 버팔로윙 (냉동)</div>
-                <div class="item-price">16,400.0원</div>
-            </div>
-            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8379838354&itemId=24215032910&vendorItemId=91232387063&traceid=V0-143-3c88f83c5022ea2b" class="buy-btn" target="_blank">토스페이로 특가 확인하기</a>
-        </div>
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=7677851491&itemId=20092096381&vendorItemId=87020741011&traceid=V0-143-3a51046d259b00c0" class="item-card" target="_blank">
+                <img src="https://image4.coupangcdn.com/image/retail/images/149670249588034-59dbf49c-75e3-4135-bf0b-f1be386b07ba.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">페브리즈 항균플러스 섬유탈취제 깨끗한향 본품</div>
+                    <div class="item-price">16,440.0원</div>
+                </div>
+            </a>
         
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=7232503577&itemId=18355800324&vendorItemId=85499654739&traceid=V0-143-99d066f6bf1e75db" class="item-card" target="_blank">
+                <img src="https://img4a.coupangcdn.com/image/retail/images/4119157550861544-e8dcce7c-5071-49c5-81f5-76c7c7bc9070.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">AHC 마스터즈 아쿠아 리치 선크림 SPF50+ PA++++</div>
+                    <div class="item-price">16,060.0원</div>
+                </div>
+            </a>
+        
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=8880536594&itemId=25861856928&vendorItemId=92902832224&traceid=V0-143-7811c40cf40c13ed" class="item-card" target="_blank">
+                <img src="https://img2a.coupangcdn.com/image/retail/images/586337020604564-f8fc5530-aed4-49d7-9acb-b7b0074f6702.png" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">비네이쳐스 마디에데 관절 쿨패치</div>
+                    <div class="item-price">12,270.0원</div>
+                </div>
+            </a>
+        
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=9072130276&itemId=26643850196&vendorItemId=70166249390&traceid=V0-143-51dbdf1f5c9d0107" class="item-card" target="_blank">
+                <img src="https://image10.coupangcdn.com/image/retail/images/176309815555266-3dd4f5e8-d778-46df-bf04-955307d952e5.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">해피콜 인덕션 이든 냄비세트 4종</div>
+                    <div class="item-price">173,300.0원</div>
+                </div>
+            </a>
+        
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=30536303&itemId=25362279299&vendorItemId=4620408919&traceid=V0-143-39b4c2e7b59dfddd" class="item-card" target="_blank">
+                <img src="https://image11.coupangcdn.com/image/vendor_inventory/4a40/d02a6f3971c39bd82bdc6953d92b07d5775546687ae728ff3b8a4c46e79a.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">트리앤 1+1+1 개운죽 20cm (30개)  수경식물 미세먼지제거 공기정화식물   직수입 [예약구매] 에어플렌트 수생식물 수경재배  꽃화분</div>
+                    <div class="item-price">11,390.0원</div>
+                </div>
+            </a>
+        
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=62318395&itemId=16754010640&vendorItemId=83935569193&traceid=V0-143-15cf62a4c446b9f2" class="item-card" target="_blank">
+                <img src="https://img3c.coupangcdn.com/image/1025_amir_coupang_oct_80k/654b/f55e86ab2564de8f335d31d0590c3d3267c65887658fb3824229899d4cbe.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">탐사 6free 강아지 사료, 연어 레시피</div>
+                    <div class="item-price">30,990.0원</div>
+                </div>
+            </a>
+        
+            <a href="https://link.coupang.com/re/AFFSDP?lptag=AF3299829&pageKey=9091676539&itemId=26719082869&vendorItemId=93690652941&traceid=V0-143-08937ed236ed2f23" class="item-card" target="_blank">
+                <img src="https://image12.coupangcdn.com/image/rs_quotation_api/g1fhqxzn/d9b0518b3de645438f8971f39baed4c3.jpg" class="item-img" alt="상품 이미지">
+                <div class="item-info">
+                    <div class="badge">오늘만 특가</div>
+                    <div class="item-title">[로켓프레시] 비비고 얇은피 진한 김치만두 (냉동)</div>
+                    <div class="item-price">13,140.0원</div>
+                </div>
+            </a>
+        
+        </div>
     </body>
     </html>
     
